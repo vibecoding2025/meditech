@@ -37,34 +37,6 @@
 
     <button type="submit" class="btn btn-primary">Process File</button>
 </form>
-
-{% if recent %}
-<section class="recent-section">
-    <h2>Recent Runs</h2>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>File</th>
-                <th>Rows</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for run in recent %}
-            <tr>
-                <td>{{ run.run_date }}</td>
-                <td><span class="badge badge-{{ run.file_type }}">{{ run.file_type | title }}</span></td>
-                <td>{{ run.filename }}</td>
-                <td>{{ run.raw_rows }} &rarr; {{ run.summary_rows }}</td>
-                <td><a href="{{ url_for('results', run_id=run.id) }}" class="btn btn-sm">View</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-{% endif %}
 {% endblock %}
 
 {% block scripts %}

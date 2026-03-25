@@ -5,8 +5,8 @@
 <div class="results-header">
     <h1>Processing Results</h1>
     <p class="subtitle">
-        <span class="badge badge-{{ run.file_type }}">{{ run.file_type | title }}</span>
-        {{ run.filename }} &mdash; {{ run.run_date }}
+        <span class="badge badge-{{ file_type }}">{{ file_type | title }}</span>
+        {{ filename }}
     </p>
 </div>
 
@@ -39,8 +39,8 @@
 <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
     <div class="download-btns">
-        <a href="{{ url_for('download', run_id=run.id, data_type='summary') }}" class="btn btn-sm">Download Summary CSV</a>
-        <a href="{{ url_for('download', run_id=run.id, data_type='clean') }}" class="btn btn-sm">Download Clean CSV</a>
+        <a href="{{ url_for('download', data_type='summary') }}" class="btn btn-sm">Download Summary CSV</a>
+        <a href="{{ url_for('download', data_type='clean') }}" class="btn btn-sm">Download Clean CSV</a>
     </div>
 </div>
 
@@ -87,6 +87,10 @@
         </tbody>
     </table>
 </div>
+
+<div style="margin-top: 1.5rem;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Process Another File</a>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -117,7 +121,6 @@ function sortTable(tableId, colIdx) {
     const header = table.querySelectorAll('th')[colIdx];
     const asc = header.dataset.sort !== 'asc';
 
-    // Reset all headers
     table.querySelectorAll('th').forEach(th => { th.dataset.sort = ''; });
     header.dataset.sort = asc ? 'asc' : 'desc';
 

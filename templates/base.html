@@ -10,8 +10,7 @@
     <nav class="navbar">
         <a href="{{ url_for('index') }}" class="nav-brand">Meditech CSV Processor</a>
         <div class="nav-links">
-            <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Upload</a>
-            <a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">History</a>
+            <a href="{{ url_for('index') }}" class="nav-link active">Upload</a>
         </div>
     </nav>
 
