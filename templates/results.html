@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<div class="results-header">
+    <h1>Processing Results</h1>
+    <p class="subtitle">
+        <span class="badge badge-{{ run.file_type }}">{{ run.file_type | title }}</span>
+        {{ run.filename }} &mdash; {{ run.run_date }}
+    </p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.raw_rows }}</div>
+        <div class="stat-label">Rows Read</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.duplicates_removed }}</div>
+        <div class="stat-label">Duplicates Removed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.clean_rows }}</div>
+        <div class="stat-label">Deduplicated Rows</div>
+    </div>
+    <div class="stat-card highlight">
+        <div class="stat-number">{{ stats.summary_rows }}</div>
+        <div class="stat-label">Unique Items</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="showTab('summary')">Summary ({{ summary_rows|length }})</button>
+    <button class="tab-btn" onclick="showTab('clean')">Deduplicated ({{ clean_rows|length }})</button>
+</div>
+
+<!-- Search -->
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
+    <div class="download-btns">
+        <a href="{{ url_for('download', run_id=run.id, data_type='summary') }}" class="btn btn-sm">Download Summary CSV</a>
+        <a href="{{ url_for('download', run_id=run.id, data_type='clean') }}" class="btn btn-sm">Download Clean CSV</a>
+    </div>
+</div>
+
+<!-- Summary Table -->
+<div id="tab-summary" class="tab-content active">
+    <table class="data-table sortable" id="summaryTable">
+        <thead>
+            <tr>
+                {% for h in summary_headers %}
+                <th onclick="sortTable('summaryTable', {{ loop.index0 }})">{{ h.replace('_', ' ') | title }} <span class="sort-icon"></span></th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in summary_rows %}
+            <tr>
+                {% for h in summary_headers %}
+                <td>{{ row[h] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Clean Table -->
+<div id="tab-clean" class="tab-content">
+    <table class="data-table sortable" id="cleanTable">
+        <thead>
+            <tr>
+                {% for h in clean_headers %}
+                <th onclick="sortTable('cleanTable', {{ loop.index0 }})">{{ h.replace('_', ' ') | title }} <span class="sort-icon"></span></th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in clean_rows %}
+            <tr>
+                {% for h in clean_headers %}
+                <td>{{ row[h] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    document.getElementById('searchInput').value = '';
+    filterTable();
+}
+
+function filterTable() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const activeTab = document.querySelector('.tab-content.active');
+    const rows = activeTab.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const text = row.cells[0].textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
+function sortTable(tableId, colIdx) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.rows);
+    const header = table.querySelectorAll('th')[colIdx];
+    const asc = header.dataset.sort !== 'asc';
+
+    // Reset all headers
+    table.querySelectorAll('th').forEach(th => { th.dataset.sort = ''; });
+    header.dataset.sort = asc ? 'asc' : 'desc';
+
+    rows.sort((a, b) => {
+        let va = a.cells[colIdx].textContent.trim();
+        let vb = b.cells[colIdx].textContent.trim();
+        const na = parseFloat(va), nb = parseFloat(vb);
+        if (!isNaN(na) && !isNaN(nb)) return asc ? na - nb : nb - na;
+        return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+</script>
+{% endblock %}

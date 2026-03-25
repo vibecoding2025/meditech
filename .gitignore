@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+meditech.db
+uploads/
+*.CSV
+*.csv
+!requirements.txt
+.DS_Store
