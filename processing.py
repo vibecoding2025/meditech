@@ -1,5 +1,5 @@
 """
-Reusable processing functions for Export and Unsold CSVs.
+Reusable processing functions for Export, Unsold, and Titan Stock CSVs.
 Extracted from process_data.py and process_unsold.py.
 """
 
@@ -28,6 +28,20 @@ def _read_semicolon_csv(filepath):
     return rows
 
 
+def _read_comma_csv(filepath):
+    """Read a comma-delimited CSV and return cleaned row dicts."""
+    rows = []
+    with open(filepath, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f, delimiter=",", quotechar='"')
+        reader.fieldnames = [h.strip() for h in reader.fieldnames]
+        for row in reader:
+            cleaned = {
+                k.strip(): v.strip() for k, v in row.items() if k
+            }
+            rows.append(cleaned)
+    return rows
+
+
 def _parse_q(val):
     try:
         return int(val)
@@ -44,6 +58,25 @@ def _parse_date(date_str):
         return None if dt.year < 1900 else dt
     except ValueError:
         return None
+
+
+def _parse_date_multi(date_str):
+    """Parse dates in multiple formats found in Titan Stock CSV."""
+    date_str = (date_str or "").strip()
+    if not date_str:
+        return None
+    for fmt in (
+        "%d/%m/%Y %H:%M:%S",   # 25/03/2026 17:15:56
+        "%d/%m/%Y",             # 25/03/2026
+        "%m/%d/%y %H:%M",      # 3/25/26 13:31
+        "%m/%d/%y",             # 3/25/26
+    ):
+        try:
+            dt = datetime.strptime(date_str, fmt)
+            return None if dt.year < 1900 else dt
+        except ValueError:
+            continue
+    return None
 
 
 def _format_date(dt):
@@ -194,6 +227,103 @@ def process_unsold(filepath):
             "latest_delivery": _format_date(e["latest_date"]),
             "prod_ids": "; ".join(sorted(e["prod_ids"])),
             "all_codes": "; ".join(sorted(e["codes"])),
+        })
+
+    stats = {
+        "raw_rows": len(raw),
+        "clean_rows": len(clean),
+        "summary_rows": len(summary),
+        "duplicates_removed": len(raw) - len(clean),
+    }
+    return clean, summary, stats
+
+
+# ---------------------------------------------------------------------------
+# Titan Stock CSV processing
+# ---------------------------------------------------------------------------
+
+TITAN_CLEAN_FIELDS = [
+    "Drug Name", "Stock Level", "Last Inputed", "Last Dispense Date",
+    "Pack Size", "Number of doses", "Is Split Pack",
+]
+TITAN_SUMMARY_FIELDS = [
+    "Drug Name", "Total Stock", "Total Doses", "Pack Sizes",
+    "Last Inputed", "Last Dispense Date",
+]
+
+
+def process_titan_stock(filepath):
+    """Process a Titan_Stock.CSV file. Returns (clean_rows, summary_rows, stats)."""
+    raw = _read_comma_csv(filepath)
+
+    # Step 1 – deduplicate by (Drug Name, Pack Size, Last Inputed)
+    groups = {}
+    for row in raw:
+        key = (
+            row.get("Drug Name", ""),
+            row.get("Pack Size", ""),
+            row.get("Last Inputed", ""),
+        )
+        stock = _parse_q(row.get("Stock Level", "0"))
+        doses = _parse_q(row.get("Number of doses", "0"))
+        if key not in groups:
+            groups[key] = {
+                "Stock Level": 0,
+                "Number of doses": 0,
+                "Last Dispense Date": row.get("Last Dispense Date", ""),
+                "Is Split Pack": row.get("Is Split Pack", "FALSE"),
+            }
+        groups[key]["Stock Level"] += stock
+        groups[key]["Number of doses"] += doses
+        # Keep the latest dispense date
+        existing_dt = _parse_date_multi(groups[key]["Last Dispense Date"])
+        new_dt = _parse_date_multi(row.get("Last Dispense Date", ""))
+        if new_dt and (existing_dt is None or new_dt > existing_dt):
+            groups[key]["Last Dispense Date"] = row.get("Last Dispense Date", "")
+
+    clean = []
+    for (drug_name, pack_size, last_inputed), data in sorted(groups.items()):
+        clean.append({
+            "Drug Name": drug_name,
+            "Stock Level": data["Stock Level"],
+            "Last Inputed": last_inputed,
+            "Last Dispense Date": data["Last Dispense Date"],
+            "Pack Size": pack_size,
+            "Number of doses": data["Number of doses"],
+            "Is Split Pack": data["Is Split Pack"],
+        })
+
+    # Step 2 – summary by Drug Name
+    name_groups = defaultdict(
+        lambda: {
+            "total_stock": 0, "total_doses": 0, "pack_sizes": set(),
+            "latest_input": None, "latest_dispense": None,
+        }
+    )
+    for row in clean:
+        entry = name_groups[row["Drug Name"]]
+        entry["total_stock"] += row["Stock Level"]
+        entry["total_doses"] += row["Number of doses"]
+        ps = row.get("Pack Size", "").strip()
+        if ps:
+            entry["pack_sizes"].add(ps)
+        dt_in = _parse_date_multi(row.get("Last Inputed", ""))
+        if dt_in and (entry["latest_input"] is None or dt_in > entry["latest_input"]):
+            entry["latest_input"] = dt_in
+        dt_disp = _parse_date_multi(row.get("Last Dispense Date", ""))
+        if dt_disp and (entry["latest_dispense"] is None or dt_disp > entry["latest_dispense"]):
+            entry["latest_dispense"] = dt_disp
+
+    summary = []
+    for name in sorted(name_groups):
+        e = name_groups[name]
+        summary.append({
+            "Drug Name": name,
+            "Total Stock": e["total_stock"],
+            "Total Doses": e["total_doses"],
+            "Pack Sizes": "; ".join(sorted(e["pack_sizes"])),
+            "Last Inputed": _format_date(e["latest_input"]),
+            "Last Dispense Date": _format_date(e["latest_dispense"]),
         })
 
     stats = {

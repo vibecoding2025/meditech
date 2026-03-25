@@ -46,7 +46,7 @@ def upload():
         flash("Please select a file to upload.", "error")
         return redirect(url_for("index"))
 
-    if file_type not in ("export", "unsold"):
+    if file_type not in ("export", "unsold", "titan_stock"):
         flash("Please select a file type.", "error")
         return redirect(url_for("index"))
 
@@ -60,14 +60,14 @@ def upload():
             clean, summary, stats = proc.process_export(filepath)
             clean_csv = proc.generate_csv_string(clean, proc.EXPORT_CLEAN_FIELDS)
             summary_csv = proc.generate_csv_string(summary, proc.EXPORT_SUMMARY_FIELDS)
-            clean_fields = proc.EXPORT_CLEAN_FIELDS
-            summary_fields = proc.EXPORT_SUMMARY_FIELDS
-        else:
+        elif file_type == "unsold":
             clean, summary, stats = proc.process_unsold(filepath)
             clean_csv = proc.generate_csv_string(clean, proc.UNSOLD_CLEAN_FIELDS)
             summary_csv = proc.generate_csv_string(summary, proc.UNSOLD_SUMMARY_FIELDS)
-            clean_fields = proc.UNSOLD_CLEAN_FIELDS
-            summary_fields = proc.UNSOLD_SUMMARY_FIELDS
+        else:  # titan_stock
+            clean, summary, stats = proc.process_titan_stock(filepath)
+            clean_csv = proc.generate_csv_string(clean, proc.TITAN_CLEAN_FIELDS)
+            summary_csv = proc.generate_csv_string(summary, proc.TITAN_SUMMARY_FIELDS)
 
         # Store results in memory with a unique token
         token = str(uuid.uuid4())
