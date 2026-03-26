@@ -235,8 +235,9 @@ tr.expensive-item td:nth-child(8) { color: #db2777; font-weight: 700; }
     font-size: 0.85rem;
 }
 .data-table th {
-    background: var(--bg);
-    padding: 0.6rem 0.75rem;
+    background: linear-gradient(135deg, #1e3a5f, #2563eb);
+    color: #ffffff;
+    padding: 0.75rem 0.75rem;
     text-align: left;
     font-weight: 600;
     font-size: 0.8rem;
@@ -247,7 +248,7 @@ tr.expensive-item td:nth-child(8) { color: #db2777; font-weight: 700; }
     user-select: none;
     white-space: nowrap;
 }
-.data-table th:hover { color: var(--text); }
+.data-table th:hover { color: #e0e7ff; }
 .data-table td {
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--border);
