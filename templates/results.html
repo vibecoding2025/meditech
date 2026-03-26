@@ -10,6 +10,7 @@
         <p class="subtitle">
             <span class="badge badge-{{ file_type }}">{{ file_type | title }}</span>
             📄 {{ filename }}
+            {% if ods_code %}<span class="badge" style="background: #dbeafe; color: #1e40af; margin-left: 0.5rem;">🏥 {{ ods_code }}</span>{% endif %}
         </p>
     </div>
     <a href="{{ url_for('index') }}" class="btn btn-primary">🔄 Process Another File</a>

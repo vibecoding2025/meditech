@@ -58,6 +58,7 @@ def index():
 def upload():
     file = request.files.get("csvfile")
     file_type = request.form.get("file_type", "")
+    ods_code = request.form.get("ods_code", "").strip().upper()
 
     if not file or not file.filename:
         flash("Please select a file to upload.", "error")
@@ -66,6 +67,12 @@ def upload():
     if file_type not in ("export", "unsold", "titan_stock"):
         flash("Please select a file type.", "error")
         return redirect(url_for("index"))
+
+    if not ods_code:
+        flash("Please enter your ODS code.", "error")
+        return redirect(url_for("index"))
+
+    session["ods_code"] = ods_code
 
     # Save uploaded file temporarily
     filename = file.filename
@@ -131,6 +138,9 @@ def upload():
         usage["total_uploads"] += 1
         usage["by_type"][file_type] = usage["by_type"].get(file_type, 0) + 1
         usage["last_upload"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if "ods_codes" not in usage:
+            usage["ods_codes"] = {}
+        usage["ods_codes"][ods_code] = usage["ods_codes"].get(ods_code, 0) + 1
         _save_usage(usage)
 
         # Store results in memory with a unique token
@@ -178,6 +188,7 @@ def results():
         stats=stats,
         headers=headers,
         rows=rows,
+        ods_code=session.get("ods_code", ""),
     )
 
 
@@ -232,20 +243,36 @@ def download_missing_ean():
 @app.route("/admin/stats")
 def admin_stats():
     usage = _load_usage()
+    ods_codes = usage.get("ods_codes", {})
+    ods_rows = "".join(
+        f'<tr><td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0"><strong>{code}</strong></td>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right">{count}</td></tr>'
+        for code, count in sorted(ods_codes.items(), key=lambda x: -x[1])
+    )
     return f"""<!DOCTYPE html>
 <html><head><title>Usage Stats</title>
 <style>
-body {{ font-family: -apple-system, sans-serif; max-width: 500px; margin: 4rem auto; padding: 1rem; }}
-h1 {{ color: #2563eb; }} .stat {{ padding: 1rem; margin: 0.5rem 0; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }}
+body {{ font-family: -apple-system, sans-serif; max-width: 600px; margin: 4rem auto; padding: 1rem; }}
+h1 {{ color: #2563eb; }} h2 {{ color: #1e293b; margin-top: 2rem; }}
+.stat {{ padding: 1rem; margin: 0.5rem 0; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }}
 .stat strong {{ font-size: 1.5rem; color: #1e293b; }} .label {{ color: #64748b; font-size: 0.85rem; }}
+table {{ width: 100%; border-collapse: collapse; margin-top: 0.5rem; }}
+th {{ background: #eef2ff; color: #1e40af; padding: 0.5rem 0.8rem; text-align: left; border-bottom: 2px solid #818cf8; }}
 </style></head><body>
 <h1>📊 Meditech Stock Bot — Usage Stats</h1>
-<div class="stat"><strong>{usage.get('total_visits', 0)}</strong><br><span class="label">Total Page Visits</span></div>
-<div class="stat"><strong>{usage.get('total_uploads', 0)}</strong><br><span class="label">Total Files Uploaded</span></div>
-<div class="stat"><strong>{usage.get('by_type', {}).get('export', 0)}</strong><br><span class="label">Export Files</span></div>
-<div class="stat"><strong>{usage.get('by_type', {}).get('unsold', 0)}</strong><br><span class="label">Unsold Files</span></div>
-<div class="stat"><strong>{usage.get('by_type', {}).get('titan_stock', 0)}</strong><br><span class="label">Titan Stock Files</span></div>
-<div class="stat"><strong>{usage.get('last_upload', 'Never')}</strong><br><span class="label">Last Upload</span></div>
+<div class="stat"><strong>{usage.get('total_visits', 0)}</strong><br><span class="label">👁️ Total Page Visits</span></div>
+<div class="stat"><strong>{usage.get('total_uploads', 0)}</strong><br><span class="label">📤 Total Files Uploaded</span></div>
+<div class="stat"><strong>{usage.get('by_type', {{}}).get('export', 0)}</strong><br><span class="label">📦 Export Files</span></div>
+<div class="stat"><strong>{usage.get('by_type', {{}}).get('unsold', 0)}</strong><br><span class="label">📋 Unsold Files</span></div>
+<div class="stat"><strong>{usage.get('by_type', {{}}).get('titan_stock', 0)}</strong><br><span class="label">💊 Titan Stock Files</span></div>
+<div class="stat"><strong>{usage.get('last_upload', 'Never')}</strong><br><span class="label">🕐 Last Upload</span></div>
+<div class="stat"><strong>{len(ods_codes)}</strong><br><span class="label">🏥 Unique Pharmacies (ODS Codes)</span></div>
+
+<h2>🏥 ODS Code Breakdown</h2>
+<table>
+<thead><tr><th>ODS Code</th><th style="text-align:right">Uploads</th></tr></thead>
+<tbody>{ods_rows if ods_rows else '<tr><td colspan="2" style="padding:0.8rem;color:#64748b">No uploads yet</td></tr>'}</tbody>
+</table>
 </body></html>"""
 
 

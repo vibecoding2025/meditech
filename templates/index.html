@@ -34,6 +34,13 @@
     </div>
 
     <div class="form-group">
+        <label for="ods_code">🏥 ODS Code (required to view Drug Tariff pricing)</label>
+        <input type="text" name="ods_code" id="ods_code" placeholder="e.g. FLJ64" required
+               style="width: 100%; padding: 0.6rem 0.8rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 0.9rem;"
+               maxlength="10" pattern="[A-Za-z0-9]+" title="Enter your pharmacy ODS code (letters and numbers only)">
+    </div>
+
+    <div class="form-group">
         <label for="csvfile">📎 Select CSV File</label>
         <div class="file-drop" id="dropZone">
             <input type="file" name="csvfile" id="csvfile" accept=".csv,.CSV" required>
