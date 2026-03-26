@@ -283,7 +283,7 @@ def _enrich_with_pricing(rows):
             else:
                 row["Total Value"] = ""
         else:
-            row["Drug Tariff Price"] = ""
+            row["Drug Tariff Price"] = "NOT FOUND"
             row["Pack Size"] = ""
             row["Total Value"] = ""
     return int(grand_total)

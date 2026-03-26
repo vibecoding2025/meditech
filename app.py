@@ -63,7 +63,7 @@ def upload():
 
         grand_total_pence = proc._enrich_with_pricing(rows)
         stats["grand_total"] = f"£{grand_total_pence / 100:.2f}"
-        priced_names = set(r["Name"] for r in rows if r.get("Drug Tariff Price"))
+        priced_names = set(r["Name"] for r in rows if r.get("Drug Tariff Price") and r["Drug Tariff Price"] != "NOT FOUND")
         all_names = set(r["Name"] for r in rows)
         stats["priced_items"] = len(priced_names)
         stats["missing_price"] = len(all_names) - len(priced_names)

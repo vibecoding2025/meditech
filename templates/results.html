@@ -85,11 +85,13 @@
     <tbody>
         {% for row in rows %}
         {% set price_val = row.get('Drug Tariff Price', '').replace('£','') %}
-        {% set is_expensive = price_val and price_val|float > 50 %}
+        {% set is_expensive = price_val and price_val not in ('', 'NOT FOUND') and price_val|float > 50 %}
         <tr class="{{ 'ean-missing' if row.get('EAN_status') == 'MISSING' else '' }}{{ ' expensive-item' if is_expensive else '' }}">
             {% for h in headers %}
             {% if h == 'EAN_status' %}
             <td class="{{ 'ean-missing-cell' if row[h] == 'MISSING' else '' }}">{{ row[h] }}</td>
+            {% elif h == 'Drug Tariff Price' and row[h] == 'NOT FOUND' %}
+            <td class="price-not-found">{{ row[h] }}</td>
             {% else %}
             <td>{{ row[h] }}</td>
             {% endif %}
