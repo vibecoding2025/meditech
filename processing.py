@@ -119,9 +119,12 @@ def _load_tariff():
                 name = row[0].strip().lower()
                 try:
                     price_pence = int(row[6].strip())
+                    pack_size = float(row[1].strip()) if row[1].strip() else 1
                 except (ValueError, IndexError):
                     continue
-                tariff[name] = price_pence
+                # Store smallest pack price (most common dispensing size)
+                if name not in tariff or pack_size < tariff[name][1]:
+                    tariff[name] = (price_pence, pack_size)
 
     _tariff_cache = tariff
     return tariff
@@ -196,7 +199,7 @@ def _load_partix():
 
 
 def _lookup_tariff_price(drug_name, ean_code=""):
-    """Look up Drug Tariff price for a drug name. Returns price in pence or None."""
+    """Look up Drug Tariff price for a drug name. Returns (price_pence, pack_size) or None."""
     tariff = _load_tariff()
     brand_map = _load_brand_map()
     partix = _load_partix()
@@ -204,7 +207,7 @@ def _lookup_tariff_price(drug_name, ean_code=""):
 
     # 1. Part VIIIA exact match
     if name in tariff:
-        return tariff[name]
+        return tariff[name]  # (price_pence, pack_size)
 
     # 2. Brand-to-generic mapping -> Part VIIIA
     if name in brand_map:
@@ -212,17 +215,17 @@ def _lookup_tariff_price(drug_name, ean_code=""):
         if generic in tariff:
             return tariff[generic]
 
-    # 3. Part IX - GTIN match
+    # 3. Part IX - GTIN match (no pack size info, assume 1)
     if ean_code and ean_code in partix["gtin"]:
-        return partix["gtin"][ean_code]
+        return (partix["gtin"][ean_code], 1)
 
     # 4. Part IX - AMP name match
     if name in partix["amp"]:
-        return partix["amp"][name]
+        return (partix["amp"][name], 1)
 
     # 5. Part IX - VMP name match
     if name in partix["vmp"]:
-        return partix["vmp"][name]
+        return (partix["vmp"][name], 1)
 
     return None
 
@@ -263,10 +266,12 @@ def _enrich_with_pricing(rows):
             row["EAN_13 (PipCode)"] = ean_lookup[row["Name"].strip()]
             row["EAN_status"] = ""
 
-        price = _lookup_tariff_price(row["Name"], row.get("EAN_13 (PipCode)", ""))
-        if price is not None:
-            price_pounds = price / 100.0
+        result = _lookup_tariff_price(row["Name"], row.get("EAN_13 (PipCode)", ""))
+        if result is not None:
+            price_pence, pack_size = result
+            price_pounds = price_pence / 100.0
             row["Drug Tariff Price"] = f"£{price_pounds:.2f}"
+            row["Pack Size"] = int(pack_size) if pack_size == int(pack_size) else pack_size
             # Only count total value once per drug name (avoid duplicates from multiple EANs)
             name = row["Name"].strip()
             if name not in seen_names:
@@ -279,6 +284,7 @@ def _enrich_with_pricing(rows):
                 row["Total Value"] = ""
         else:
             row["Drug Tariff Price"] = ""
+            row["Pack Size"] = ""
             row["Total Value"] = ""
     return int(grand_total)
 
@@ -296,7 +302,7 @@ def generate_csv_string(rows, fieldnames):
 # Unified output fields (5 columns)
 # ---------------------------------------------------------------------------
 
-OUTPUT_FIELDS = ["Name", "Quantity", "EAN_13 (PipCode)", "EAN_status", "Latest Delivery", "Drug Tariff Price", "Total Value"]
+OUTPUT_FIELDS = ["Name", "Quantity", "EAN_13 (PipCode)", "EAN_status", "Latest Delivery", "Drug Tariff Price", "Pack Size", "Total Value"]
 
 
 # ---------------------------------------------------------------------------

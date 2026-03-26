@@ -108,7 +108,8 @@ td.ean-missing-cell { color: #dc2626; font-weight: 700; }
 
 /* Expensive item highlight */
 tr.expensive-item { background: #fdf2f8; }
-tr.expensive-item td:nth-child(6) { color: #db2777; font-weight: 700; }
+tr.expensive-item td:nth-child(6),
+tr.expensive-item td:nth-child(8) { color: #db2777; font-weight: 700; }
 
 /* Upload form */
 .upload-form {
