@@ -58,7 +58,6 @@ def index():
 def upload():
     file = request.files.get("csvfile")
     file_type = request.form.get("file_type", "")
-    ods_code = request.form.get("ods_code", "").strip().upper()
 
     if not file or not file.filename:
         flash("Please select a file to upload.", "error")
@@ -67,12 +66,6 @@ def upload():
     if file_type not in ("export", "unsold", "titan_stock"):
         flash("Please select a file type.", "error")
         return redirect(url_for("index"))
-
-    if not ods_code:
-        flash("Please enter your ODS code.", "error")
-        return redirect(url_for("index"))
-
-    session["ods_code"] = ods_code
 
     # Save uploaded file temporarily
     filename = file.filename
@@ -138,9 +131,6 @@ def upload():
         usage["total_uploads"] += 1
         usage["by_type"][file_type] = usage["by_type"].get(file_type, 0) + 1
         usage["last_upload"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if "ods_codes" not in usage:
-            usage["ods_codes"] = {}
-        usage["ods_codes"][ods_code] = usage["ods_codes"].get(ods_code, 0) + 1
         _save_usage(usage)
 
         # Store results in memory with a unique token
@@ -188,8 +178,24 @@ def results():
         stats=stats,
         headers=headers,
         rows=rows,
+        ods_unlocked=bool(session.get("ods_code")),
         ods_code=session.get("ods_code", ""),
     )
+
+
+@app.route("/unlock-pricing", methods=["POST"])
+def unlock_pricing():
+    ods_code = request.form.get("ods_code", "").strip().upper()
+    if not ods_code:
+        return "ODS code required", 400
+    session["ods_code"] = ods_code
+    # Track ODS code
+    usage = _load_usage()
+    if "ods_codes" not in usage:
+        usage["ods_codes"] = {}
+    usage["ods_codes"][ods_code] = usage["ods_codes"].get(ods_code, 0) + 1
+    _save_usage(usage)
+    return "OK", 200
 
 
 @app.route("/download")
