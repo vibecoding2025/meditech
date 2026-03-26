@@ -5,6 +5,7 @@ Extracted from process_data.py and process_unsold.py.
 
 import csv
 import io
+import re
 from collections import defaultdict
 from datetime import datetime
 
@@ -79,6 +80,11 @@ def _parse_date_multi(date_str):
     return None
 
 
+def _extract_ean13(codes_str):
+    """Extract all EAN-13 barcodes (exactly 13 digits) from a string."""
+    return re.findall(r'\b\d{13}\b', codes_str or "")
+
+
 def _format_date(dt):
     return dt.strftime("%d/%m/%Y") if dt else "Never"
 
@@ -96,8 +102,8 @@ def generate_csv_string(rows, fieldnames):
 # Export.CSV processing
 # ---------------------------------------------------------------------------
 
-EXPORT_CLEAN_FIELDS = ["name", "shortestcode", "longestcode", "preferredcode", "Q"]
-EXPORT_SUMMARY_FIELDS = ["name", "total_quantity", "all_codes"]
+EXPORT_CLEAN_FIELDS = ["name", "EAN_13", "shortestcode", "longestcode", "preferredcode", "Q"]
+EXPORT_SUMMARY_FIELDS = ["name", "total_quantity", "EAN_13", "all_codes"]
 
 
 def process_export(filepath):
@@ -117,8 +123,12 @@ def process_export(filepath):
 
     clean = []
     for (name, shortest, longest, preferred), total_q in sorted(groups.items()):
+        ean13_codes = set()
+        ean13_codes.update(_extract_ean13(shortest))
+        ean13_codes.update(_extract_ean13(preferred))
         clean.append({
             "name": name,
+            "EAN_13": "; ".join(sorted(ean13_codes)),
             "shortestcode": shortest,
             "longestcode": longest,
             "preferredcode": preferred,
@@ -126,7 +136,7 @@ def process_export(filepath):
         })
 
     # Step 2 – summary by name
-    name_groups = defaultdict(lambda: {"total_quantity": 0, "codes": set()})
+    name_groups = defaultdict(lambda: {"total_quantity": 0, "codes": set(), "ean13": set()})
     for row in clean:
         entry = name_groups[row["name"]]
         entry["total_quantity"] += row["Q"]
@@ -140,6 +150,8 @@ def process_export(filepath):
                 code = part.strip()
                 if code:
                     entry["codes"].add(code)
+        entry["ean13"].update(_extract_ean13(row.get("shortestcode", "")))
+        entry["ean13"].update(_extract_ean13(row.get("preferredcode", "")))
 
     summary = []
     for name in sorted(name_groups):
@@ -147,6 +159,7 @@ def process_export(filepath):
         summary.append({
             "name": name,
             "total_quantity": e["total_quantity"],
+            "EAN_13": "; ".join(sorted(e["ean13"])),
             "all_codes": "; ".join(sorted(e["codes"])),
         })
 
@@ -163,8 +176,8 @@ def process_export(filepath):
 # Unsold products.CSV processing
 # ---------------------------------------------------------------------------
 
-UNSOLD_CLEAN_FIELDS = ["name", "prod_id", "reference", "lastdelivered", "Q"]
-UNSOLD_SUMMARY_FIELDS = ["name", "total_quantity", "latest_delivery", "prod_ids", "all_codes"]
+UNSOLD_CLEAN_FIELDS = ["name", "EAN_13", "prod_id", "reference", "lastdelivered", "Q"]
+UNSOLD_SUMMARY_FIELDS = ["name", "total_quantity", "EAN_13", "latest_delivery", "prod_ids", "all_codes"]
 
 
 def process_unsold(filepath):
@@ -190,8 +203,10 @@ def process_unsold(filepath):
 
     clean = []
     for (name, reference, prod_id), data in sorted(groups.items()):
+        ean13_codes = _extract_ean13(reference)
         clean.append({
             "name": name,
+            "EAN_13": "; ".join(sorted(set(ean13_codes))),
             "prod_id": prod_id,
             "reference": reference,
             "lastdelivered": _format_date(data["lastdelivered"]),
@@ -200,7 +215,7 @@ def process_unsold(filepath):
 
     # Step 2 – summary by name
     name_groups = defaultdict(
-        lambda: {"total_quantity": 0, "codes": set(), "prod_ids": set(), "latest_date": None}
+        lambda: {"total_quantity": 0, "codes": set(), "prod_ids": set(), "ean13": set(), "latest_date": None}
     )
     for row in clean:
         entry = name_groups[row["name"]]
@@ -211,6 +226,7 @@ def process_unsold(filepath):
                 code = part.strip()
                 if code:
                     entry["codes"].add(code)
+            entry["ean13"].update(_extract_ean13(ref))
         pid = row.get("prod_id", "")
         if pid:
             entry["prod_ids"].add(pid)
@@ -224,6 +240,7 @@ def process_unsold(filepath):
         summary.append({
             "name": name,
             "total_quantity": e["total_quantity"],
+            "EAN_13": "; ".join(sorted(e["ean13"])),
             "latest_delivery": _format_date(e["latest_date"]),
             "prod_ids": "; ".join(sorted(e["prod_ids"])),
             "all_codes": "; ".join(sorted(e["codes"])),
