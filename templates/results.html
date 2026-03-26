@@ -55,11 +55,15 @@
     </div>
 </div>
 
+<div style="margin-top: 0.75rem; padding: 0.6rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.75rem; color: #64748b; line-height: 1.5;">
+    <strong>Disclaimer:</strong> Drug Tariff pricing is based on the NHS Drug Tariff Part VIIIA (March 2026) and Part IX (May 2025) published by NHSBSA. Prices shown are indicative estimates based on the smallest listed pack size and may not reflect actual reimbursement values, contract prices, or current market rates. Figures are provided for reference purposes only and should not be relied upon for financial, clinical, or procurement decisions. No liability is accepted for any inaccuracies. Always refer to the latest official NHS Drug Tariff for authoritative pricing.
+</div>
+
 <!-- Search & Download -->
 <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
     <div class="download-btns">
-        <a href="{{ url_for('download') }}" class="btn btn-sm">Download CSV</a>
+        <a href="{{ url_for('download') }}" class="btn btn-sm" style="background: #dbeafe; color: #1e40af; border: 1px solid #1e40af;">Download CSV</a>
         {% if stats.missing_ean > 0 %}
         <a href="{{ url_for('download_missing_ean') }}" class="btn btn-sm" style="background: #fefce8; color: #ca8a04; border: 1px solid #ca8a04;">Download Missing EAN</a>
         {% endif %}
