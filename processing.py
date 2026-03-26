@@ -95,6 +95,7 @@ def _format_date(dt):
 _tariff_cache = None
 _brand_map_cache = None
 _partix_cache = None
+_ean_lookup_cache = None
 
 def _load_tariff():
     """Load Drug Tariff Part VIIIA CSV. Returns dict of {lowercase name: price in pence}."""
@@ -226,11 +227,42 @@ def _lookup_tariff_price(drug_name, ean_code=""):
     return None
 
 
+def _load_ean_lookup():
+    """Load EAN lookup CSV for drugs missing barcodes. Returns dict of {drug name: ean}."""
+    global _ean_lookup_cache
+    if _ean_lookup_cache is not None:
+        return _ean_lookup_cache
+
+    import os
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ean_lookup.csv")
+    lookup = {}
+    if not os.path.exists(path):
+        _ean_lookup_cache = lookup
+        return lookup
+
+    with open(path, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            name = (row.get("drug_name") or "").strip()
+            ean = (row.get("ean_code") or "").strip()
+            if name and ean:
+                lookup[name] = ean
+
+    _ean_lookup_cache = lookup
+    return lookup
+
+
 def _enrich_with_pricing(rows):
     """Add Drug Tariff Price and Total Value columns to rows. Returns grand total in pence."""
+    ean_lookup = _load_ean_lookup()
     grand_total = 0
     seen_names = set()
     for row in rows:
+        # Fill in missing EAN codes from dm+d lookup
+        if row.get("EAN_status") == "MISSING" and row["Name"].strip() in ean_lookup:
+            row["EAN_13 (PipCode)"] = ean_lookup[row["Name"].strip()]
+            row["EAN_status"] = ""
+
         price = _lookup_tariff_price(row["Name"], row.get("EAN_13 (PipCode)", ""))
         if price is not None:
             price_pounds = price / 100.0
