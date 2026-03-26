@@ -2,9 +2,11 @@
 
 import csv
 import io
+import json
 import os
 import uuid
 import webbrowser
+from datetime import datetime
 from threading import Timer
 
 from flask import (
@@ -25,6 +27,20 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # In-memory store: each user session gets their own results
 _results_store = {}
 
+USAGE_PATH = os.path.join(BASE_DIR, "usage.json")
+
+
+def _load_usage():
+    if os.path.exists(USAGE_PATH):
+        with open(USAGE_PATH, "r") as f:
+            return json.load(f)
+    return {"total_visits": 0, "total_uploads": 0, "by_type": {"export": 0, "unsold": 0, "titan_stock": 0}, "last_upload": ""}
+
+
+def _save_usage(data):
+    with open(USAGE_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -32,6 +48,9 @@ _results_store = {}
 
 @app.route("/")
 def index():
+    usage = _load_usage()
+    usage["total_visits"] += 1
+    _save_usage(usage)
     return render_template("index.html")
 
 
@@ -106,6 +125,13 @@ def upload():
                 except ValueError:
                     pass
         expensive_csv = proc.generate_csv_string(expensive_rows, proc.OUTPUT_FIELDS)
+
+        # Track usage
+        usage = _load_usage()
+        usage["total_uploads"] += 1
+        usage["by_type"][file_type] = usage["by_type"].get(file_type, 0) + 1
+        usage["last_upload"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        _save_usage(usage)
 
         # Store results in memory with a unique token
         token = str(uuid.uuid4())
@@ -201,6 +227,26 @@ def download_missing_ean():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
+
+
+@app.route("/admin/stats")
+def admin_stats():
+    usage = _load_usage()
+    return f"""<!DOCTYPE html>
+<html><head><title>Usage Stats</title>
+<style>
+body {{ font-family: -apple-system, sans-serif; max-width: 500px; margin: 4rem auto; padding: 1rem; }}
+h1 {{ color: #2563eb; }} .stat {{ padding: 1rem; margin: 0.5rem 0; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }}
+.stat strong {{ font-size: 1.5rem; color: #1e293b; }} .label {{ color: #64748b; font-size: 0.85rem; }}
+</style></head><body>
+<h1>📊 Meditech Stock Bot — Usage Stats</h1>
+<div class="stat"><strong>{usage.get('total_visits', 0)}</strong><br><span class="label">Total Page Visits</span></div>
+<div class="stat"><strong>{usage.get('total_uploads', 0)}</strong><br><span class="label">Total Files Uploaded</span></div>
+<div class="stat"><strong>{usage.get('by_type', {}).get('export', 0)}</strong><br><span class="label">Export Files</span></div>
+<div class="stat"><strong>{usage.get('by_type', {}).get('unsold', 0)}</strong><br><span class="label">Unsold Files</span></div>
+<div class="stat"><strong>{usage.get('by_type', {}).get('titan_stock', 0)}</strong><br><span class="label">Titan Stock Files</span></div>
+<div class="stat"><strong>{usage.get('last_upload', 'Never')}</strong><br><span class="label">Last Upload</span></div>
+</body></html>"""
 
 
 # ---------------------------------------------------------------------------
