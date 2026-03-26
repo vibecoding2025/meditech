@@ -7,4 +7,5 @@ uploads/
 !requirements.txt
 !drug_tariff.csv
 !brand_to_generic.csv
+!Drug_Tariff_Part_IX*.csv
 .DS_Store

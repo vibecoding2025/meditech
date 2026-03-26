@@ -94,6 +94,7 @@ def _format_date(dt):
 
 _tariff_cache = None
 _brand_map_cache = None
+_partix_cache = None
 
 def _load_tariff():
     """Load Drug Tariff Part VIIIA CSV. Returns dict of {lowercase name: price in pence}."""
@@ -150,21 +151,77 @@ def _load_brand_map():
     return mapping
 
 
-def _lookup_tariff_price(drug_name):
+def _load_partix():
+    """Load Drug Tariff Part IX CSV. Returns dict with amp_prices, vmp_prices, gtin_prices."""
+    global _partix_cache
+    if _partix_cache is not None:
+        return _partix_cache
+
+    import os, glob
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    # Find Part IX CSV file
+    files = glob.glob(os.path.join(base_dir, "Drug_Tariff_Part_IX*.csv"))
+    if not files:
+        _partix_cache = {"amp": {}, "vmp": {}, "gtin": {}}
+        return _partix_cache
+
+    amp_prices = {}   # amp name lower -> price pence
+    vmp_prices = {}   # vmp name lower -> price pence
+    gtin_prices = {}  # gtin 13-digit -> price pence
+
+    with open(files[0], "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            amp = (row.get("AMP Name") or "").strip().lower()
+            vmp = (row.get("VMP Name") or "").strip().lower()
+            gtin = (row.get("GTIN") or "").strip()
+            try:
+                price = int(row.get("Price", "0").strip())
+            except (ValueError, TypeError):
+                continue
+            if price <= 0:
+                continue
+            if amp:
+                amp_prices[amp] = price
+            if vmp:
+                vmp_prices[vmp] = price
+            if gtin:
+                gtin_norm = gtin.lstrip("0")
+                if len(gtin_norm) == 13 and gtin_norm.isdigit():
+                    gtin_prices[gtin_norm] = price
+
+    _partix_cache = {"amp": amp_prices, "vmp": vmp_prices, "gtin": gtin_prices}
+    return _partix_cache
+
+
+def _lookup_tariff_price(drug_name, ean_code=""):
     """Look up Drug Tariff price for a drug name. Returns price in pence or None."""
     tariff = _load_tariff()
     brand_map = _load_brand_map()
+    partix = _load_partix()
     name = drug_name.strip().lower()
 
-    # 1. Exact match
+    # 1. Part VIIIA exact match
     if name in tariff:
         return tariff[name]
 
-    # 2. Brand-to-generic mapping
+    # 2. Brand-to-generic mapping -> Part VIIIA
     if name in brand_map:
         generic = brand_map[name]
         if generic in tariff:
             return tariff[generic]
+
+    # 3. Part IX - GTIN match
+    if ean_code and ean_code in partix["gtin"]:
+        return partix["gtin"][ean_code]
+
+    # 4. Part IX - AMP name match
+    if name in partix["amp"]:
+        return partix["amp"][name]
+
+    # 5. Part IX - VMP name match
+    if name in partix["vmp"]:
+        return partix["vmp"][name]
 
     return None
 
@@ -173,7 +230,7 @@ def _enrich_with_pricing(rows):
     """Add Drug Tariff Price and Total Value columns to rows. Returns grand total in pence."""
     grand_total = 0
     for row in rows:
-        price = _lookup_tariff_price(row["Name"])
+        price = _lookup_tariff_price(row["Name"], row.get("EAN_13 (PipCode)", ""))
         if price is not None:
             price_pounds = price / 100.0
             qty = int(row["Quantity"]) if row["Quantity"] else 0
