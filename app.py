@@ -2,7 +2,6 @@
 
 import csv
 import io
-import json
 import os
 import uuid
 import webbrowser
@@ -23,8 +22,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "meditech-local-dev-key")
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# In-memory store: each user session gets their own results, auto-cleared
-# Key = session token, Value = {stats, clean_csv, summary_csv, file_type, filename, clean_fields, summary_fields}
+# In-memory store: each user session gets their own results
 _results_store = {}
 
 
@@ -57,24 +55,19 @@ def upload():
 
     try:
         if file_type == "export":
-            clean, summary, stats = proc.process_export(filepath)
-            clean_csv = proc.generate_csv_string(clean, proc.EXPORT_CLEAN_FIELDS)
-            summary_csv = proc.generate_csv_string(summary, proc.EXPORT_SUMMARY_FIELDS)
+            rows, stats = proc.process_export(filepath)
         elif file_type == "unsold":
-            clean, summary, stats = proc.process_unsold(filepath)
-            clean_csv = proc.generate_csv_string(clean, proc.UNSOLD_CLEAN_FIELDS)
-            summary_csv = proc.generate_csv_string(summary, proc.UNSOLD_SUMMARY_FIELDS)
+            rows, stats = proc.process_unsold(filepath)
         else:  # titan_stock
-            clean, summary, stats = proc.process_titan_stock(filepath)
-            clean_csv = proc.generate_csv_string(clean, proc.TITAN_CLEAN_FIELDS)
-            summary_csv = proc.generate_csv_string(summary, proc.TITAN_SUMMARY_FIELDS)
+            rows, stats = proc.process_titan_stock(filepath)
+
+        output_csv = proc.generate_csv_string(rows, proc.OUTPUT_FIELDS)
 
         # Store results in memory with a unique token
         token = str(uuid.uuid4())
         _results_store[token] = {
             "stats": stats,
-            "clean_csv": clean_csv,
-            "summary_csv": summary_csv,
+            "output_csv": output_csv,
             "file_type": file_type,
             "filename": filename,
         }
@@ -82,7 +75,7 @@ def upload():
 
         flash(f"Processed {filename}: {stats['raw_rows']} rows read, "
               f"{stats['duplicates_removed']} duplicates removed, "
-              f"{stats['summary_rows']} unique items.", "success")
+              f"{stats['unique_items']} unique items.", "success")
         return redirect(url_for("results"))
 
     except Exception as e:
@@ -103,41 +96,30 @@ def results():
     data = _results_store[token]
     stats = data["stats"]
 
-    clean_rows = list(csv.DictReader(io.StringIO(data["clean_csv"])))
-    summary_rows = list(csv.DictReader(io.StringIO(data["summary_csv"])))
-
-    clean_headers = list(clean_rows[0].keys()) if clean_rows else []
-    summary_headers = list(summary_rows[0].keys()) if summary_rows else []
+    rows = list(csv.DictReader(io.StringIO(data["output_csv"])))
+    headers = proc.OUTPUT_FIELDS
 
     return render_template(
         "results.html",
         file_type=data["file_type"],
         filename=data["filename"],
         stats=stats,
-        clean_headers=clean_headers,
-        clean_rows=clean_rows,
-        summary_headers=summary_headers,
-        summary_rows=summary_rows,
+        headers=headers,
+        rows=rows,
     )
 
 
-@app.route("/download/<data_type>")
-def download(data_type):
-    if data_type not in ("clean", "summary"):
-        flash("Invalid download type.", "error")
-        return redirect(url_for("index"))
-
+@app.route("/download")
+def download():
     token = session.get("result_token")
     if not token or token not in _results_store:
         flash("No results found. Please upload a file first.", "error")
         return redirect(url_for("index"))
 
     data = _results_store[token]
-    content = data["clean_csv"] if data_type == "clean" else data["summary_csv"]
-
-    filename = f"{data['file_type']}_{data_type}.csv"
+    filename = f"{data['file_type']}_processed.csv"
     return Response(
-        content,
+        data["output_csv"],
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
