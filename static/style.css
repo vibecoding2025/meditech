@@ -102,6 +102,14 @@ h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
 .badge-unsold { background: #fef3c7; color: #92400e; }
 .badge-titan_stock { background: #d1fae5; color: #065f46; }
 
+/* EAN-13 missing highlight */
+tr.ean-missing { background: #fef2f2; }
+td.ean-missing-cell { color: #dc2626; font-weight: 700; }
+
+/* Expensive item highlight */
+tr.expensive-item { background: #fdf2f8; }
+tr.expensive-item td:nth-child(6) { color: #db2777; font-weight: 700; }
+
 /* Upload form */
 .upload-form {
     background: var(--card-bg);

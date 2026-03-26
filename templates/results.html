@@ -49,6 +49,10 @@
         <div class="stat-number" style="color: #ca8a04;">{{ stats.missing_ean }}</div>
         <div class="stat-label">Missing EAN Code</div>
     </div>
+    <div class="stat-card" style="background: #fdf2f8; border: 2px solid #db2777;">
+        <div class="stat-number" style="color: #db2777;">{{ stats.expensive_items }}</div>
+        <div class="stat-label">Expensive Items (>£50 DT)</div>
+    </div>
 </div>
 
 <!-- Search & Download -->
@@ -58,6 +62,9 @@
         <a href="{{ url_for('download') }}" class="btn btn-sm">Download CSV</a>
         {% if stats.missing_ean > 0 %}
         <a href="{{ url_for('download_missing_ean') }}" class="btn btn-sm" style="background: #fefce8; color: #ca8a04; border: 1px solid #ca8a04;">Download Missing EAN</a>
+        {% endif %}
+        {% if stats.expensive_items > 0 %}
+        <a href="{{ url_for('download_expensive') }}" class="btn btn-sm" style="background: #fdf2f8; color: #db2777; border: 1px solid #db2777;">Download Expensive Items</a>
         {% endif %}
     </div>
 </div>
@@ -73,7 +80,9 @@
     </thead>
     <tbody>
         {% for row in rows %}
-        <tr class="{{ 'ean-missing' if row.get('EAN_status') == 'MISSING' else '' }}">
+        {% set price_val = row.get('Drug Tariff Price', '').replace('£','') %}
+        {% set is_expensive = price_val and price_val|float > 50 %}
+        <tr class="{{ 'ean-missing' if row.get('EAN_status') == 'MISSING' else '' }}{{ ' expensive-item' if is_expensive else '' }}">
             {% for h in headers %}
             {% if h == 'EAN_status' %}
             <td class="{{ 'ean-missing-cell' if row[h] == 'MISSING' else '' }}">{{ row[h] }}</td>

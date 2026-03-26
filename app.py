@@ -70,6 +70,18 @@ def upload():
         missing_ean_names = set(r["Name"] for r in rows if r.get("EAN_status") == "MISSING")
         stats["missing_ean"] = len(missing_ean_names)
 
+        # Count expensive items (>£50 Drug Tariff Price)
+        expensive_names = set()
+        for r in rows:
+            price_str = r.get("Drug Tariff Price", "").replace("£", "")
+            if price_str:
+                try:
+                    if float(price_str) > 50:
+                        expensive_names.add(r["Name"])
+                except ValueError:
+                    pass
+        stats["expensive_items"] = len(expensive_names)
+
         output_csv = proc.generate_csv_string(rows, proc.OUTPUT_FIELDS)
 
         # Build missing EAN CSV
@@ -81,12 +93,27 @@ def upload():
                 seen.add(r["Name"])
         missing_ean_csv = proc.generate_csv_string(missing_ean_rows, proc.OUTPUT_FIELDS)
 
+        # Build expensive items CSV
+        expensive_rows = []
+        seen_exp = set()
+        for r in rows:
+            price_str = r.get("Drug Tariff Price", "").replace("£", "")
+            if price_str:
+                try:
+                    if float(price_str) > 50 and r["Name"] not in seen_exp:
+                        expensive_rows.append(r)
+                        seen_exp.add(r["Name"])
+                except ValueError:
+                    pass
+        expensive_csv = proc.generate_csv_string(expensive_rows, proc.OUTPUT_FIELDS)
+
         # Store results in memory with a unique token
         token = str(uuid.uuid4())
         _results_store[token] = {
             "stats": stats,
             "output_csv": output_csv,
             "missing_ean_csv": missing_ean_csv,
+            "expensive_csv": expensive_csv,
             "file_type": file_type,
             "filename": filename,
         }
@@ -139,6 +166,22 @@ def download():
     filename = f"{data['file_type']}_processed.csv"
     return Response(
         data["output_csv"],
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@app.route("/download/expensive")
+def download_expensive():
+    token = session.get("result_token")
+    if not token or token not in _results_store:
+        flash("No results found. Please upload a file first.", "error")
+        return redirect(url_for("index"))
+
+    data = _results_store[token]
+    filename = f"{data['file_type']}_expensive_items.csv"
+    return Response(
+        data["expensive_csv"],
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
