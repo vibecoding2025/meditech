@@ -32,6 +32,17 @@
     </div>
 </div>
 
+<div class="stats-grid" style="margin-top: 0.75rem;">
+    <div class="stat-card" style="background: #f0fdf4; border: 2px solid #16a34a;">
+        <div class="stat-number" style="color: #16a34a;">{{ stats.grand_total }}</div>
+        <div class="stat-label">Total Stock Value (Drug Tariff)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.priced_items }}</div>
+        <div class="stat-label">Items with Tariff Price</div>
+    </div>
+</div>
+
 <!-- Search & Download -->
 <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
@@ -87,8 +98,8 @@ function sortTable(tableId, colIdx) {
     header.dataset.sort = asc ? 'asc' : 'desc';
 
     rows.sort((a, b) => {
-        let va = a.cells[colIdx].textContent.trim();
-        let vb = b.cells[colIdx].textContent.trim();
+        let va = a.cells[colIdx].textContent.trim().replace('£','');
+        let vb = b.cells[colIdx].textContent.trim().replace('£','');
         const na = parseFloat(va), nb = parseFloat(vb);
         if (!isNaN(na) && !isNaN(nb)) return asc ? na - nb : nb - na;
         return asc ? va.localeCompare(vb) : vb.localeCompare(va);

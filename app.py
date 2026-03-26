@@ -61,6 +61,10 @@ def upload():
         else:  # titan_stock
             rows, stats = proc.process_titan_stock(filepath)
 
+        grand_total_pence = proc._enrich_with_pricing(rows)
+        stats["grand_total"] = f"£{grand_total_pence / 100:.2f}"
+        stats["priced_items"] = sum(1 for r in rows if r.get("Drug Tariff Price"))
+
         output_csv = proc.generate_csv_string(rows, proc.OUTPUT_FIELDS)
 
         # Store results in memory with a unique token

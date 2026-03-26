@@ -88,6 +88,105 @@ def _format_date(dt):
     return dt.strftime("%d/%m/%Y") if dt else "Never"
 
 
+# ---------------------------------------------------------------------------
+# Drug Tariff pricing
+# ---------------------------------------------------------------------------
+
+_tariff_cache = None
+_brand_map_cache = None
+
+def _load_tariff():
+    """Load Drug Tariff Part VIIIA CSV. Returns dict of {lowercase name: price in pence}."""
+    global _tariff_cache
+    if _tariff_cache is not None:
+        return _tariff_cache
+
+    import os
+    tariff_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drug_tariff.csv")
+    tariff = {}
+    if not os.path.exists(tariff_path):
+        _tariff_cache = tariff
+        return tariff
+
+    with open(tariff_path, "r", encoding="utf-8-sig") as f:
+        reader = csv.reader(f)
+        for i, row in enumerate(reader):
+            if i < 3:  # skip header rows
+                continue
+            if len(row) >= 7 and row[0].strip():
+                name = row[0].strip().lower()
+                try:
+                    price_pence = int(row[6].strip())
+                except (ValueError, IndexError):
+                    continue
+                tariff[name] = price_pence
+
+    _tariff_cache = tariff
+    return tariff
+
+
+def _load_brand_map():
+    """Load brand-to-generic mapping CSV. Returns dict of {branded name lower: generic name lower}."""
+    global _brand_map_cache
+    if _brand_map_cache is not None:
+        return _brand_map_cache
+
+    import os
+    map_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "brand_to_generic.csv")
+    mapping = {}
+    if not os.path.exists(map_path):
+        _brand_map_cache = mapping
+        return mapping
+
+    with open(map_path, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            brand = (row.get("brand_name") or "").strip().lower()
+            generic = (row.get("generic_name") or "").strip().lower()
+            if brand and generic:
+                mapping[brand] = generic
+
+    _brand_map_cache = mapping
+    return mapping
+
+
+def _lookup_tariff_price(drug_name):
+    """Look up Drug Tariff price for a drug name. Returns price in pence or None."""
+    tariff = _load_tariff()
+    brand_map = _load_brand_map()
+    name = drug_name.strip().lower()
+
+    # 1. Exact match
+    if name in tariff:
+        return tariff[name]
+
+    # 2. Brand-to-generic mapping
+    if name in brand_map:
+        generic = brand_map[name]
+        if generic in tariff:
+            return tariff[generic]
+
+    return None
+
+
+def _enrich_with_pricing(rows):
+    """Add Drug Tariff Price and Total Value columns to rows. Returns grand total in pence."""
+    grand_total = 0
+    for row in rows:
+        price = _lookup_tariff_price(row["Name"])
+        if price is not None:
+            price_pounds = price / 100.0
+            qty = int(row["Quantity"]) if row["Quantity"] else 0
+            total = price_pounds * qty
+            row["Drug Tariff Price"] = f"£{price_pounds:.2f}"
+            row["Total Value"] = f"£{total:.2f}"
+            grand_total += total * 100  # keep in pence for precision
+        else:
+            row["Drug Tariff Price"] = ""
+            row["Total Value"] = ""
+    return int(grand_total)
+
+
 def generate_csv_string(rows, fieldnames):
     """Render a list of dicts as a CSV string."""
     buf = io.StringIO()
@@ -101,7 +200,7 @@ def generate_csv_string(rows, fieldnames):
 # Unified output fields (5 columns)
 # ---------------------------------------------------------------------------
 
-OUTPUT_FIELDS = ["Name", "Quantity", "EAN_13 (PipCode)", "EAN_status", "Latest Delivery"]
+OUTPUT_FIELDS = ["Name", "Quantity", "EAN_13 (PipCode)", "EAN_status", "Latest Delivery", "Drug Tariff Price", "Total Value"]
 
 
 # ---------------------------------------------------------------------------
