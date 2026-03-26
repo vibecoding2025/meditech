@@ -1,13 +1,19 @@
 brand_name,generic_name
+4SURE beta-ketone testing strips 4S-810-4634100-005,Blood ketones testing strips
 A1-Cal 500mg chewable tablets,Calcium carbonate 1.25g chewable tablets sugar free
+A1-Cal D3 500mg/400unit chewable tablets sugar free,Colecalciferol 400unit / Calcium carbonate 1.25g chewable tablets
+A1-Cal D3 Max 600mg/400unit chewable tablets sugar free,Colecalciferol 400unit / Calcium carbonate 1.5g chewable tablets
 AaCarb Carbomer 0.2% eye gel,Carbomer '980' 0.2% eye drops
 AaceCa 1500mg chewable tablets,Calcium carbonate 1.5g chewable tablets sugar free
 AaceCa D3 1500mg/400unit chewable tablets,colecalciferol 400unit / calcium carbonate 1.5g chewable tablets
 AaceCa D3 750mg/200unit caplets,Colecalciferol 200unit / Calcium carbonate 750mg tablets
 "Aactive D3 10,000unit capsules","Colecalciferol 10,000unit capsules"
+"Aactive D3 30,000unit capsules","colecalciferol 3,200unit capsules"
 AascorbDose 500mg tablets,Ascorbic acid 500mg tablets
 Accrete D3 One a Day 1000mg/880unit chewable tablets,Colecalciferol 880unit / Calcium carbonate 2.5g chewable tablets
 Accrete D3 tablets,Colecalciferol 400unit / Calcium carbonate 1.5g tablets
+"AceCal D3 10,000unit tablets","colecalciferol 10,000unit capsules"
+"AceCal D3 2,000unit tablets","colecalciferol 20,000unit capsules"
 Acepiro 600mg effervescent tablets,Acetylcysteine 600mg effervescent tablets sugar free
 Acetyl-NAC 600mg tablets,acetylcysteine 600mg effervescent tablets sugar free
 Acnecide 5% gel,Benzoyl peroxide 5% gel
@@ -47,6 +53,7 @@ Arthrotec 50 gastro-resistant tablets,diclofenac sodium 50mg gastro-resistant / 
 Arthrotec 75 gastro-resistant tablets,diclofenac sodium 75mg gastro-resistant / misoprostol 200microgram tablets
 Asacol 800mg MR gastro-resistant tablets,Mesalazine 800mg gastro-resistant tablets
 Aspire Hayfever Relief 2% eye drops,Sodium cromoglicate 2% eye drops
+Atrovent 20micrograms/dose Autohaler,ipratropium bromide 20micrograms/dose inhaler cfc free
 Atrovent 20micrograms/dose inhaler,ipratropium bromide 20micrograms/dose inhaler cfc free
 Atrovent 20micrograms/dose inhaler CFC free,Ipratropium bromide 20micrograms/dose inhaler CFC free
 Atrovent 250micrograms/1ml nebuliser liquid UDVs,Ipratropium bromide 250micrograms/1ml nebuliser liquid unit dose vials
@@ -92,6 +99,7 @@ Budenofalk 3mg gastro-resistant capsules,Budesonide 3mg gastro-resistant capsule
 Buscopan 10mg tablets,Hyoscine butylbromide 10mg tablets
 Buscopan 20mg/1ml solution for injection ampoules,Hyoscine butylbromide 20mg/1ml solution for injection ampoules
 Calceos 500mg/400unit chewable tablets,colecalciferol 400unit / calcium carbonate 1.25g chewable tablets
+Calceos chewable tablets sugar free,Colecalciferol 400unit / Calcium carbonate 1.25g chewable tablets
 "Calci-D 1000mg/1,000unit chewable tablets","Colecalciferol 1,000unit / Calcium carbonate 2.5g chewable tablets"
 Calcichew 500mg chewable tablets,Calcium carbonate 1.25g chewable tablets sugar free
 Calcichew D3 Forte chewable tablets,Colecalciferol 400unit / Calcium carbonate 1.25g chewable tablets
@@ -112,6 +120,7 @@ Carmize 0.5% eye drops,carmellose 0.5% eye drops 0.4ml unit dose preservative fr
 Carmize 0.5% eye drops 0.4ml unit dose preservative free,Carmellose 0.5% eye drops 0.4ml unit dose preservative free
 Carmize 1% eye drops 0.4ml unit dose preservative free,Carmellose 1% eye drops 0.4ml unit dose preservative free
 Catacrom 2% eye drops 0.3ml unit dose,Sodium cromoglicate 2% eye drops 0.3ml unit dose preservative free
+Cavilon No Sting barrier film foam 1ml applicator 3343P,Ostomy skin protectives
 Celebrex 200mg capsules,celecoxib 200mg capsules
 CellCept 500mg tablets,Mycophenolate mofetil 500mg tablets
 Cenlax 7.5mg tablets 12 Years Plus,senna 7.5mg tablets
@@ -143,6 +152,7 @@ Codipar 15mg/500mg capsules,Co-codamol 15mg/500mg capsules
 "ColeDose D3 25,000unit capsules","Colecalciferol 25,000unit capsules"
 "ColeDose D3 3,200unit capsules","Colecalciferol 3,200unit capsules"
 "ColeDose D3 4,000unit tablets","Colecalciferol 4,000unit tablets"
+ColeDose D3 400unit tablets,colecalciferol 400unit capsules
 ColeDose D3 800unit capsules,Colecalciferol 800unit capsules
 "ColeKal-D3 3,200unit capsules","colecalciferol 3,200unit capsules"
 "ColeKal-D3 4,000unit tablets","colecalciferol 4,000unit tablets"
@@ -165,7 +175,9 @@ Cosopt iMulti 20mg/ml / 5mg/ml eye drops,dorzolamide 20mg/ml / timolol 5mg/ml ey
 Coversyl Arginine 10mg tablets,perindopril arginine 10mg tablets
 Crystacide 1% cream,Hydrogen peroxide 1% cream
 CyanocoB12 100microgram tablets,cyanocobalamin 50microgram tablets
+CyanocoB12 1mg modified-release tablets,cyanocobalamin 1mg tablets
 CyanocoB12 1mg tablets,Cyanocobalamin 1mg tablets
+CyanocoMinn 1mg modified-release tablets,cyanocobalamin 1mg tablets
 CyanocoMinn 1mg tablets,Cyanocobalamin 1mg tablets
 CyanocoMinn 50microgram tablets,cyanocobalamin 50microgram tablets
 Cyclogest 200mg pessaries,Progesterone 200mg pessaries
@@ -211,6 +223,8 @@ Edronax 4mg tablets,reboxetine 4mg tablets
 Elantan LA25 capsules,isosorbide mononitrate 25mg modified-release capsules
 Elidel 1% cream,Pimecrolimus 1% cream
 EllaOne 30mg tablets,Ulipristal 30mg tablets
+Elleste Duet 1mg tablets,estradiol 1mg / norethisterone acetate 500microgram tablets
+Elleste Duet 2mg tablets,estradiol 2mg / norethisterone acetate 1mg tablets
 Elleste Duet Conti tablets,Estradiol 2mg / Norethisterone acetate 1mg tablets
 Elleste Solo 1mg tablets,Estradiol 1mg tablets
 Elocon 0.1% cream,mometasone 0.1% cream
@@ -265,6 +279,8 @@ Faverin 100mg tablets,Fluvoxamine 100mg tablets
 Faverin 50mg tablets,Fluvoxamine 50mg tablets
 FemSeven 50 patches,Estradiol 50micrograms/24hours transdermal patches
 FemSeven 75 patches,Estradiol 75micrograms/24hours transdermal patches
+Femoston 1/10mg tablets,estradiol 1mg / dydrogesterone 5mg tablets
+Femoston 2/10mg tablets,estradiol 500micrograms / dydrogesterone 2.5mg tablets
 Femoston-conti 1mg/5mg tablets,Estradiol 1mg / Dydrogesterone 5mg tablets
 Fenbid 5% gel,Ibuprofen 5% gel
 FerroDose-F 322mg tablets,Ferrous fumarate 322mg tablets
@@ -310,6 +326,7 @@ GelTears 0.2% gel,carbomer '980' 0.2% eye drops
 Gepretix 200mg capsules,progesterone micronised 200mg capsules
 Germoloids cream,Zinc oxide 6.6% / Lidocaine 0.7% rectal cream
 Giraxine 10mg tablets,Solifenacin 10mg tablets
+GlucoMen Sensor testing strips,blood glucose biosensor testing strips
 Glucophage SR 1000mg tablets,Metformin 1g modified-release tablets
 Golden Eye Antibiotic 1% eye ointment,Chloramphenicol 1% eye ointment
 Gynest vaginal applicator type 1,Estriol 0.01% vaginal cream with applicator
@@ -319,6 +336,8 @@ Hayleve 4mg tablets,Chlorphenamine 4mg tablets
 Hiprex 1g tablets,methenamine hippurate 1g tablets
 Hirudoid 0.3% cream,Heparinoid 0.3% cream
 "Hux D3 20,000unit capsules","colecalciferol 20,000unit capsules"
+Hycosan 0.1% eye drops,sodium hyaluronate 0.1% eye drops preservative free
+Hycosan Plus eye drops,sodium hyaluronate 0.1% / dexpanthenol 2% eye drops preservative free
 Hydventia 10mg tablets,Hydrocortisone 10mg tablets
 Hylo-Tear 0.1% eye drops preservative free,dexamethasone 0.1% eye drops preservative free
 Hypnovel 10mg/2ml solution for injection ampoules,Midazolam 10mg/2ml solution for injection ampoules
@@ -359,6 +378,7 @@ Keppra 250mg tablets,Levetiracetam 250mg tablets
 Kliofem tablets,Estradiol 2mg / Norethisterone acetate 1mg tablets
 Kliovance tablets,Estradiol 1mg / Norethisterone acetate 500microgram tablets
 Kwells Kids 150microgram tablets,hyoscine hydrobromide 150microgram tablets
+LBF No Sting barrier film spray,ostomy skin protectives
 LMX 4 cream,Lidocaine 4% cream
 Lactulose 10g/15ml oral solution 15ml sachets sugar free unflavoured,Lactulose 10g/15ml oral solution 15ml sachets sugar free
 Lamictal 100mg tablets,lamotrigine 100mg tablets
@@ -400,6 +420,7 @@ Madopar 50mg/12.5mg capsules,Co-beneldopa 12.5mg/50mg capsules
 Madopar 50mg/12.5mg dispersible tablets,Co-beneldopa 12.5mg/50mg dispersible tablets sugar free
 Madopar CR capsules,Co-beneldopa 25mg/100mg modified-release capsules
 MagnEss Gly 97.2mg (4mmol) chewable tablets,magnesium glycerophosphate (magnesium 97.2mg (4mmol)) chewable tablets sugar free
+MagnaPhos 97.2mg (4mmol) capsules,Magnesium glycerophosphate (magnesium 97.2mg (4mmol)) chewable tablets sugar free
 MagnaPhos 97.2mg (4mmol) chewable tablets,magnesium glycerophosphate (magnesium 97.2mg (4mmol)) chewable tablets sugar free
 Magnaspartate 243mg (magnesium 10mmol) oral powder sachets,Magnesium aspartate (magnesium 10mmol) oral powder sachets
 Malarone 250mg/100mg tablets,proguanil 100mg / atovaquone 250mg tablets
@@ -411,6 +432,8 @@ Maxalt Melt 10mg oral lyophilisates,rizatriptan 10mg oral lyophilisates sugar fr
 Maxidex 0.1% eye drops,Dexamethasone 0.1% eye drops
 Maxitram SR 200mg capsules,Tramadol 200mg modified-release capsules
 Maxitram SR 50mg capsules,Tramadol 50mg modified-release capsules
+Medi Derma-Pro skin protectant ointment 63605,Ostomy skin protectives
+Medi Derma-S non-sting medical barrier film pump spray 60796,Ostomy skin protectives
 Medomon XL 60mg tablets,Isosorbide mononitrate 60mg modified-release tablets
 Meijumet 1000mg modified-release tablets,Metformin 1g modified-release tablets
 Menorest 37.5 patches,estradiol 37.5micrograms/24hours transdermal patches
@@ -430,7 +453,9 @@ Metoject PEN 15mg/0.3ml solution for injection pre-filled pens,Methotrexate 15mg
 Metoject PEN 20mg/0.4ml solution for injection pre-filled pens,Methotrexate 20mg/0.4ml solution for injection pre-filled disposable devices
 Metoject PEN 25mg/0.5ml solution for injection pre-filled pens,Methotrexate 25mg/0.5ml solution for injection pre-filled disposable devices
 Metrosa 0.75% gel,Metronidazole 0.75% gel
+Mexiletine 100mg capsules,mexiletine hydrochloride 200mg (mexiletine 167mg) capsules
 Mezavant XL 1200mg tablets,Mesalazine 1.2g gastro-resistant modified-release tablets
+Micralax Micro-enema 5ml,sodium citrate compound 5ml enema
 Microgynon 30 ED tablets,ethinylestradiol 30microgram / levonorgestrel 150microgram tablets
 Microgynon 30 tablets,Ethinylestradiol 30microgram / Levonorgestrel 150microgram tablets
 Millinette 20microgram/75microgram tablets,Ethinylestradiol 20microgram / Gestodene 75microgram tablets
@@ -452,6 +477,7 @@ Nasobec Aqueous 50micrograms/dose nasal spray,Beclometasone 50micrograms/dose na
 Nasofan 50micrograms/dose aqueous nasal spray,Fluticasone propionate 50micrograms/dose nasal spray
 Nasonex 50micrograms/dose nasal spray,mometasone 50micrograms/dose nasal spray
 Natecal D3 600mg/400unit chewable tablets,Colecalciferol 400unit / Calcium carbonate 1.5g chewable tablets
+Nebido 1000mg/4ml solution for injection ampoules,testosterone undecanoate 1g/4ml solution for injection vials
 Nebido 1000mg/4ml solution for injection vials,Testosterone undecanoate 1g/4ml solution for injection vials
 Neozipine XL 30mg tablets,Nifedipine 30mg modified-release tablets
 Neozipine XL 60mg tablets,Nifedipine 60mg modified-release tablets
@@ -467,6 +493,7 @@ Nizoral 2% cream,ketoconazole 2% cream
 Noqdirna 50microgram oral lyophilisates,Desmopressin 50microgram oral lyophilisates sugar free
 Norgeston 30microgram tablets,Levonorgestrel 30microgram tablets
 Noriday 350microgram tablets,Norethisterone 350microgram tablets
+Novofem tablets,estradiol 1mg / norethisterone acetate 500microgram tablets
 Nozinan 25mg/1ml solution for injection ampoules,Levomepromazine 25mg/1ml solution for injection ampoules
 Nulbia 5% cream,Lidocaine 2.5% / Prilocaine 2.5% cream
 Numark Night Time Sleep Aid 25mg tablets,Diphenhydramine 25mg tablets
@@ -576,6 +603,7 @@ Sayana Press 104mg/0.65 ml suspension for injection pre-filled disposable device
 Scheriproct ointment,cinchocaine 0.5% / prednisolone 0.19% ointment
 Securon SR 240mg tablets,Verapamil 240mg modified-release tablets
 Selexid 200mg tablets,pivmecillinam 200mg tablets
+Senease Twelve Years Plus 7.5mg tablets,senna 7.5mg tablets
 Senna 7.5mg tablets 12 Years Plus,senna 7.5mg tablets
 Sennosides 7.5mg tablets,senna 7.5mg tablets
 Sennosides 7.5mg tablets 12 Years Plus,senna 7.5mg tablets
@@ -585,6 +613,7 @@ Sereflo 25micrograms/dose / 250micrograms/dose inhaler,fluticasone 250micrograms
 Seretide 250 Evohaler,Fluticasone 250micrograms/dose / Salmeterol 25micrograms/dose inhaler CFC free
 Seretide 50 Evohaler,fluticasone 50micrograms/dose / salmeterol 25micrograms/dose inhaler cfc free
 Serevent 25micrograms/dose Evohaler,Salmeterol 25micrograms/dose inhaler CFC free
+Serevent 50microgram disks,salmeterol 50micrograms/dose dry powder inhaler
 Simbrinza 10mg/ml / 2mg/ml eye drops,Brinzolamide 10mg/ml / Brimonidine 2mg/ml eye drops
 Sinemet 12.5mg/50mg tablets,co-careldopa 12.5mg/50mg tablets
 Skinoren 20% cream,Azelaic acid 20% cream
@@ -611,7 +640,9 @@ Stemetil 5mg tablets,Prochlorperazine 5mg tablets
 "Strivit-D3 20,000unit capsules","Colecalciferol 20,000unit capsules"
 Sukkarto SR 1000mg tablets,Metformin 1g modified-release tablets
 Sumatriptan 6mg/0.5ml solution for injection pre-filled pens,Sumatriptan 6mg/0.5ml solution for injection pre-filled disposable devices
+"SunVit-D3 10,000unit tablets","colecalciferol 10,000unit capsules"
 "SunVit-D3 20,000unit capsules","colecalciferol 20,000unit capsules"
+"SunVit-D3 20,000unit tablets","colecalciferol 20,000unit capsules"
 SunVit-D3 200unit with Calcium 500mg chewable tablets,colecalciferol 200unit / calcium carbonate 1.25g chewable tablets
 "SunVit-D3 4,000unit tablets","colecalciferol 4,000unit tablets"
 Sunveniz XL 75mg tablets,Venlafaxine 75mg modified-release tablets
@@ -640,6 +671,7 @@ Testavan 20mg/g transdermal gel,testosterone 20mg/g transdermal gel (23mg per ac
 Testogel 16.2mg/g gel,Testosterone 16.2mg/g transdermal gel (20.25mg per actuation)
 Testogel 40.5mg/2.5g transdermal gel sachets,Testosterone 40.5mg/2.5g transdermal gel unit dose sachets
 Thealoz Duo Gel eye gel 0.4g unit dose preservative free,timolol 1mg/g gel eye drops 0.4g unit dose preservative free
+Thealoz Duo UD eye drops 0.4ml unit dose preservative free,sodium hyaluronate 0.15% / trehalose 3% eye drops preservative free
 TheiCal-D3 1000mg/880unit chewable tablets,Colecalciferol 880unit / Calcium carbonate 2.5g chewable tablets
 "Thorens 10,000units/ml oral drops","Colecalciferol 10,000units/ml oral drops sugar free"
 "Thorens 25,000unit capsules","colecalciferol 25,000unit capsules"
@@ -667,6 +699,7 @@ Tramulief SR 100mg tablets,tramadol 100mg modified-release capsules
 Tramulief SR 200mg tablets,tramadol 200mg modified-release capsules
 Trandate 200mg tablets,Labetalol 200mg tablets
 Trelegy Ellipta 92micrograms/dose / 55micrograms/dose / 22micrograms/dose dry powder inhaler,umeclidinium bromide 65micrograms/dose / vilanterol 22micrograms/dose dry powder inhaler
+TriRegol tablets,ethinylestradiol 30microgram / levonorgestrel 150microgram tablets
 Trimbow NEXThaler 88micrograms/dose / 5micrograms/dose / 9micrograms/dose dry powder inhaler,budesonide 400micrograms/dose / formoterol 12micrograms/dose dry powder inhaler
 Trimovate cream,"Clobetasone 0.05% / Oxytetracycline 3% / Nystatin 100,000units/g cream"
 Tritace 10mg tablets,ramipril 10mg tablets
@@ -711,6 +744,7 @@ Virgan 0.15% eye gel,Ganciclovir 0.15% eye gel
 Viridal Duo Starter Pack 10microgram powder and solvent for solution for injection cartridges with device,alprostadil 10microgram powder and solvent for solution for injection cartridges with device
 Viscotears 2mg/g eye gel 0.6ml unit dose,Carbomer '980' 0.2% eye drops 0.6ml unit dose preservative free
 Viscotears 2mg/g liquid gel,Carbomer '980' 0.2% eye drops
+Vizulize 0.1% eye drops,sodium hyaluronate 0.1% eye drops
 Voltarol 1.16% Emulgel,Diclofenac diethylammonium 1.16% gel
 Voltarol 100mg suppositories,diclofenac 100mg suppositories
 Voltarol 12 Hour Emulgel P 2.32% gel,Diclofenac diethylammonium 2.32% gel
