@@ -253,6 +253,10 @@ def download_missing_ean():
 def admin_stats():
     usage = _load_usage()
     ods_codes = usage.get("ods_codes", {})
+    by_type = usage.get("by_type", {})
+    export_count = by_type.get("export", 0)
+    unsold_count = by_type.get("unsold", 0)
+    titan_count = by_type.get("titan_stock", 0)
     ods_rows = "".join(
         f'<tr><td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0"><strong>{code}</strong></td>'
         f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right">{count}</td></tr>'
@@ -271,9 +275,9 @@ th {{ background: #eef2ff; color: #1e40af; padding: 0.5rem 0.8rem; text-align: l
 <h1>📊 Meditech Stock Bot — Usage Stats</h1>
 <div class="stat"><strong>{usage.get('total_visits', 0)}</strong><br><span class="label">👁️ Total Page Visits</span></div>
 <div class="stat"><strong>{usage.get('total_uploads', 0)}</strong><br><span class="label">📤 Total Files Uploaded</span></div>
-<div class="stat"><strong>{usage.get('by_type', {{}}).get('export', 0)}</strong><br><span class="label">📦 Export Files</span></div>
-<div class="stat"><strong>{usage.get('by_type', {{}}).get('unsold', 0)}</strong><br><span class="label">📋 Unsold Files</span></div>
-<div class="stat"><strong>{usage.get('by_type', {{}}).get('titan_stock', 0)}</strong><br><span class="label">💊 Titan Stock Files</span></div>
+<div class="stat"><strong>{export_count}</strong><br><span class="label">📦 Export Files</span></div>
+<div class="stat"><strong>{unsold_count}</strong><br><span class="label">📋 Unsold Files</span></div>
+<div class="stat"><strong>{titan_count}</strong><br><span class="label">💊 Titan Stock Files</span></div>
 <div class="stat"><strong>{usage.get('last_upload', 'Never')}</strong><br><span class="label">🕐 Last Upload</span></div>
 <div class="stat"><strong>{len(ods_codes)}</strong><br><span class="label">🏥 Unique Pharmacies (ODS Codes)</span></div>
 
