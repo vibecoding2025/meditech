@@ -67,6 +67,9 @@ def upload():
         flash("Please select a file type.", "error")
         return redirect(url_for("index"))
 
+    # Clear ODS code so pricing is locked on each new upload
+    session.pop("ods_code", None)
+
     # Save uploaded file temporarily
     filename = file.filename
     filepath = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}_{filename}")
