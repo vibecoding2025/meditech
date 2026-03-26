@@ -4,54 +4,54 @@
 {% block content %}
 <div class="results-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-        <h1>Processing Results</h1>
+        <h1>📊 Processing Results</h1>
         <p class="subtitle">
             <span class="badge badge-{{ file_type }}">{{ file_type | title }}</span>
-            {{ filename }}
+            📄 {{ filename }}
         </p>
     </div>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Process Another File</a>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">🔄 Process Another File</a>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-number">{{ stats.raw_rows }}</div>
-        <div class="stat-label">Rows Read</div>
+        <div class="stat-label">📥 Rows Read</div>
     </div>
     <div class="stat-card">
         <div class="stat-number">{{ stats.duplicates_removed }}</div>
-        <div class="stat-label">Duplicates Removed</div>
+        <div class="stat-label">🗑️ Duplicates Removed</div>
     </div>
     <div class="stat-card highlight">
         <div class="stat-number">{{ stats.unique_items }}</div>
-        <div class="stat-label">Unique Items</div>
+        <div class="stat-label">✅ Unique Items</div>
     </div>
     <div class="stat-card">
         <div class="stat-number">{{ stats.output_rows }}</div>
-        <div class="stat-label">Output Rows</div>
+        <div class="stat-label">📤 Output Rows</div>
     </div>
 </div>
 
 <div class="stats-grid" style="margin-top: 0.75rem;">
     <div class="stat-card" style="background: #f0fdf4; border: 2px solid #16a34a;">
         <div class="stat-number" style="color: #16a34a;">{{ stats.grand_total }}</div>
-        <div class="stat-label">Total Stock Value (Drug Tariff)</div>
+        <div class="stat-label">💰 Total Stock Value (Drug Tariff)</div>
     </div>
     <div class="stat-card">
         <div class="stat-number">{{ stats.priced_items }}</div>
-        <div class="stat-label">Items with Tariff Price</div>
+        <div class="stat-label">🏷️ Items with Tariff Price</div>
     </div>
     <div class="stat-card" style="background: #fef2f2; border: 2px solid #dc2626;">
         <div class="stat-number" style="color: #dc2626;">{{ stats.missing_price }}</div>
-        <div class="stat-label">Missing Drug Tariff Price</div>
+        <div class="stat-label">❌ Missing Drug Tariff Price</div>
     </div>
     <div class="stat-card" style="background: #fefce8; border: 2px solid #ca8a04;">
         <div class="stat-number" style="color: #ca8a04;">{{ stats.missing_ean }}</div>
-        <div class="stat-label">Missing EAN Code</div>
+        <div class="stat-label">🔍 Missing EAN Code</div>
     </div>
     <div class="stat-card" style="background: #fdf2f8; border: 2px solid #db2777;">
         <div class="stat-number" style="color: #db2777;">{{ stats.expensive_items }}</div>
-        <div class="stat-label">Expensive Items (>£50 DT)</div>
+        <div class="stat-label">💎 Expensive Items (>£50 DT)</div>
     </div>
 </div>
 
@@ -61,14 +61,14 @@
 
 <!-- Search & Download -->
 <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
+    <input type="text" id="searchInput" placeholder="🔎 Search by name..." onkeyup="filterTable()">
     <div class="download-btns">
-        <a href="{{ url_for('download') }}" class="btn btn-sm" style="background: #dbeafe; color: #1e40af; border: 1px solid #1e40af;">Download CSV</a>
+        <a href="{{ url_for('download') }}" class="btn btn-sm" style="background: #dbeafe; color: #1e40af; border: 1px solid #1e40af;">📥 Download CSV</a>
         {% if stats.missing_ean > 0 %}
-        <a href="{{ url_for('download_missing_ean') }}" class="btn btn-sm" style="background: #fefce8; color: #ca8a04; border: 1px solid #ca8a04;">Download Missing EAN</a>
+        <a href="{{ url_for('download_missing_ean') }}" class="btn btn-sm" style="background: #fefce8; color: #ca8a04; border: 1px solid #ca8a04;">🔍 Missing EAN</a>
         {% endif %}
         {% if stats.expensive_items > 0 %}
-        <a href="{{ url_for('download_expensive') }}" class="btn btn-sm" style="background: #fdf2f8; color: #db2777; border: 1px solid #db2777;">Download Expensive Items</a>
+        <a href="{{ url_for('download_expensive') }}" class="btn btn-sm" style="background: #fdf2f8; color: #db2777; border: 1px solid #db2777;">💎 Expensive Items</a>
         {% endif %}
     </div>
 </div>

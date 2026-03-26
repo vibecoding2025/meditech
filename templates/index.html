@@ -2,12 +2,12 @@
 {% block title %}Upload{% endblock %}
 
 {% block content %}
-<h1>Upload CSV File</h1>
+<h1>📂 Upload CSV File</h1>
 <p class="subtitle">Select your file type and upload your CSV to process it.</p>
 
 <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" class="upload-form">
     <div class="form-group">
-        <label>File Type</label>
+        <label>🏷️ File Type</label>
         <div class="radio-group">
             <label class="radio-card radio-export">
                 <input type="radio" name="file_type" value="export" checked>
@@ -34,15 +34,15 @@
     </div>
 
     <div class="form-group">
-        <label for="csvfile">Select CSV File</label>
+        <label for="csvfile">📎 Select CSV File</label>
         <div class="file-drop" id="dropZone">
             <input type="file" name="csvfile" id="csvfile" accept=".csv,.CSV" required>
-            <p>Drag &amp; drop your CSV here, or <strong>click to browse</strong></p>
+            <p>📁 Drag &amp; drop your CSV here, or <strong>click to browse</strong></p>
             <p class="file-name" id="fileName"></p>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Process File</button>
+    <button type="submit" class="btn btn-primary">⚡ Process File</button>
 </form>
 {% endblock %}
 
