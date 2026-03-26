@@ -41,6 +41,14 @@
         <div class="stat-number">{{ stats.priced_items }}</div>
         <div class="stat-label">Items with Tariff Price</div>
     </div>
+    <div class="stat-card" style="background: #fef2f2; border: 2px solid #dc2626;">
+        <div class="stat-number" style="color: #dc2626;">{{ stats.missing_price }}</div>
+        <div class="stat-label">Missing Drug Tariff Price</div>
+    </div>
+    <div class="stat-card" style="background: #fefce8; border: 2px solid #ca8a04;">
+        <div class="stat-number" style="color: #ca8a04;">{{ stats.missing_ean }}</div>
+        <div class="stat-label">Missing EAN Code</div>
+    </div>
 </div>
 
 <!-- Search & Download -->
@@ -48,6 +56,9 @@
     <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterTable()">
     <div class="download-btns">
         <a href="{{ url_for('download') }}" class="btn btn-sm">Download CSV</a>
+        {% if stats.missing_ean > 0 %}
+        <a href="{{ url_for('download_missing_ean') }}" class="btn btn-sm" style="background: #fefce8; color: #ca8a04; border: 1px solid #ca8a04;">Download Missing EAN</a>
+        {% endif %}
     </div>
 </div>
 

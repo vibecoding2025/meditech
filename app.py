@@ -63,15 +63,30 @@ def upload():
 
         grand_total_pence = proc._enrich_with_pricing(rows)
         stats["grand_total"] = f"£{grand_total_pence / 100:.2f}"
-        stats["priced_items"] = sum(1 for r in rows if r.get("Drug Tariff Price"))
+        priced_names = set(r["Name"] for r in rows if r.get("Drug Tariff Price"))
+        all_names = set(r["Name"] for r in rows)
+        stats["priced_items"] = len(priced_names)
+        stats["missing_price"] = len(all_names) - len(priced_names)
+        missing_ean_names = set(r["Name"] for r in rows if r.get("EAN_status") == "MISSING")
+        stats["missing_ean"] = len(missing_ean_names)
 
         output_csv = proc.generate_csv_string(rows, proc.OUTPUT_FIELDS)
+
+        # Build missing EAN CSV
+        missing_ean_rows = []
+        seen = set()
+        for r in rows:
+            if r.get("EAN_status") == "MISSING" and r["Name"] not in seen:
+                missing_ean_rows.append(r)
+                seen.add(r["Name"])
+        missing_ean_csv = proc.generate_csv_string(missing_ean_rows, proc.OUTPUT_FIELDS)
 
         # Store results in memory with a unique token
         token = str(uuid.uuid4())
         _results_store[token] = {
             "stats": stats,
             "output_csv": output_csv,
+            "missing_ean_csv": missing_ean_csv,
             "file_type": file_type,
             "filename": filename,
         }
@@ -124,6 +139,22 @@ def download():
     filename = f"{data['file_type']}_processed.csv"
     return Response(
         data["output_csv"],
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@app.route("/download/missing-ean")
+def download_missing_ean():
+    token = session.get("result_token")
+    if not token or token not in _results_store:
+        flash("No results found. Please upload a file first.", "error")
+        return redirect(url_for("index"))
+
+    data = _results_store[token]
+    filename = f"{data['file_type']}_missing_ean.csv"
+    return Response(
+        data["missing_ean_csv"],
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
