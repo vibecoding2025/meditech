@@ -40,6 +40,9 @@ body {
     color: var(--primary);
     text-decoration: none;
 }
+.nav-right { display: flex; align-items: center; gap: 1.5rem; margin-left: auto; }
+.nav-credit { font-size: 0.75rem; color: var(--text-light); }
+.nav-credit strong { color: var(--primary); }
 .nav-links { display: flex; gap: 0.5rem; }
 .nav-link {
     text-decoration: none;
