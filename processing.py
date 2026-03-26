@@ -229,15 +229,22 @@ def _lookup_tariff_price(drug_name, ean_code=""):
 def _enrich_with_pricing(rows):
     """Add Drug Tariff Price and Total Value columns to rows. Returns grand total in pence."""
     grand_total = 0
+    seen_names = set()
     for row in rows:
         price = _lookup_tariff_price(row["Name"], row.get("EAN_13 (PipCode)", ""))
         if price is not None:
             price_pounds = price / 100.0
-            qty = int(row["Quantity"]) if row["Quantity"] else 0
-            total = price_pounds * qty
             row["Drug Tariff Price"] = f"£{price_pounds:.2f}"
-            row["Total Value"] = f"£{total:.2f}"
-            grand_total += total * 100  # keep in pence for precision
+            # Only count total value once per drug name (avoid duplicates from multiple EANs)
+            name = row["Name"].strip()
+            if name not in seen_names:
+                qty = int(row["Quantity"]) if row["Quantity"] else 0
+                total = price_pounds * qty
+                row["Total Value"] = f"£{total:.2f}"
+                grand_total += total * 100
+                seen_names.add(name)
+            else:
+                row["Total Value"] = ""
         else:
             row["Drug Tariff Price"] = ""
             row["Total Value"] = ""
