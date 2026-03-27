@@ -192,11 +192,21 @@ def unlock_pricing():
     if not ods_code:
         return "ODS code required", 400
     session["ods_code"] = ods_code
-    # Track ODS code
+
+    # Get grand total from current results
+    grand_total = ""
+    token = session.get("result_token")
+    if token and token in _results_store:
+        grand_total = _results_store[token]["stats"].get("grand_total", "")
+
+    # Track ODS code with grand total
     usage = _load_usage()
     if "ods_codes" not in usage:
         usage["ods_codes"] = {}
+    if "ods_totals" not in usage:
+        usage["ods_totals"] = {}
     usage["ods_codes"][ods_code] = usage["ods_codes"].get(ods_code, 0) + 1
+    usage["ods_totals"][ods_code] = grand_total
     _save_usage(usage)
     return "OK", 200
 
@@ -253,13 +263,15 @@ def download_missing_ean():
 def admin_stats():
     usage = _load_usage()
     ods_codes = usage.get("ods_codes", {})
+    ods_totals = usage.get("ods_totals", {})
     by_type = usage.get("by_type", {})
     export_count = by_type.get("export", 0)
     unsold_count = by_type.get("unsold", 0)
     titan_count = by_type.get("titan_stock", 0)
     ods_rows = "".join(
         f'<tr><td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0"><strong>{code}</strong></td>'
-        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right">{count}</td></tr>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right">{count}</td>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right;color:#16a34a;font-weight:600">{ods_totals.get(code, "—")}</td></tr>'
         for code, count in sorted(ods_codes.items(), key=lambda x: -x[1])
     )
     return f"""<!DOCTYPE html>
@@ -283,8 +295,8 @@ th {{ background: #eef2ff; color: #1e40af; padding: 0.5rem 0.8rem; text-align: l
 
 <h2>🏥 ODS Code Breakdown</h2>
 <table>
-<thead><tr><th>ODS Code</th><th style="text-align:right">Uploads</th></tr></thead>
-<tbody>{ods_rows if ods_rows else '<tr><td colspan="2" style="padding:0.8rem;color:#64748b">No uploads yet</td></tr>'}</tbody>
+<thead><tr><th>ODS Code</th><th style="text-align:right">Uploads</th><th style="text-align:right">Last Drug Tariff Total</th></tr></thead>
+<tbody>{ods_rows if ods_rows else '<tr><td colspan="3" style="padding:0.8rem;color:#64748b">No uploads yet</td></tr>'}</tbody>
 </table>
 </body></html>"""
 
