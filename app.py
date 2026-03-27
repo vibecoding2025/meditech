@@ -193,20 +193,31 @@ def unlock_pricing():
         return "ODS code required", 400
     session["ods_code"] = ods_code
 
-    # Get grand total from current results
+    # Get details from current results
     grand_total = ""
+    file_type = ""
+    filename = ""
     token = session.get("result_token")
     if token and token in _results_store:
-        grand_total = _results_store[token]["stats"].get("grand_total", "")
+        data = _results_store[token]
+        grand_total = data["stats"].get("grand_total", "")
+        file_type = data.get("file_type", "")
+        filename = data.get("filename", "")
 
-    # Track ODS code with grand total
+    # Track ODS code - each unlock is a separate log entry
     usage = _load_usage()
     if "ods_codes" not in usage:
         usage["ods_codes"] = {}
-    if "ods_totals" not in usage:
-        usage["ods_totals"] = {}
     usage["ods_codes"][ods_code] = usage["ods_codes"].get(ods_code, 0) + 1
-    usage["ods_totals"][ods_code] = grand_total
+    if "upload_log" not in usage:
+        usage["upload_log"] = []
+    usage["upload_log"].append({
+        "ods_code": ods_code,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "file_type": file_type,
+        "filename": filename,
+        "drug_tariff_total": grand_total,
+    })
     _save_usage(usage)
     return "OK", 200
 
@@ -263,40 +274,64 @@ def download_missing_ean():
 def admin_stats():
     usage = _load_usage()
     ods_codes = usage.get("ods_codes", {})
-    ods_totals = usage.get("ods_totals", {})
+    upload_log = usage.get("upload_log", [])
     by_type = usage.get("by_type", {})
     export_count = by_type.get("export", 0)
     unsold_count = by_type.get("unsold", 0)
     titan_count = by_type.get("titan_stock", 0)
-    ods_rows = "".join(
+
+    # ODS summary rows
+    ods_summary_rows = "".join(
         f'<tr><td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0"><strong>{code}</strong></td>'
-        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right">{count}</td>'
-        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right;color:#16a34a;font-weight:600">{ods_totals.get(code, "—")}</td></tr>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right">{count}</td></tr>'
         for code, count in sorted(ods_codes.items(), key=lambda x: -x[1])
     )
+
+    # File type labels
+    type_labels = {"export": "📦 Export", "unsold": "📋 Unsold", "titan_stock": "💊 Titan Stock"}
+
+    # Upload log rows (newest first)
+    log_rows = "".join(
+        f'<tr><td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0"><strong>{entry.get("ods_code", "—")}</strong></td>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0">{entry.get("date", "—")}</td>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0">{type_labels.get(entry.get("file_type", ""), entry.get("file_type", "—"))}</td>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;font-size:0.8rem">{entry.get("filename", "—")}</td>'
+        f'<td style="padding:0.4rem 0.8rem;border-bottom:1px solid #e2e8f0;text-align:right;color:#16a34a;font-weight:600">{entry.get("drug_tariff_total", "—")}</td></tr>'
+        for entry in reversed(upload_log)
+    )
+
     return f"""<!DOCTYPE html>
 <html><head><title>Usage Stats</title>
 <style>
-body {{ font-family: -apple-system, sans-serif; max-width: 600px; margin: 4rem auto; padding: 1rem; }}
+body {{ font-family: -apple-system, sans-serif; max-width: 900px; margin: 4rem auto; padding: 1rem; }}
 h1 {{ color: #2563eb; }} h2 {{ color: #1e293b; margin-top: 2rem; }}
-.stat {{ padding: 1rem; margin: 0.5rem 0; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }}
-.stat strong {{ font-size: 1.5rem; color: #1e293b; }} .label {{ color: #64748b; font-size: 0.85rem; }}
+.stat-grid {{ display: flex; flex-wrap: wrap; gap: 0.5rem; }}
+.stat {{ padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; flex: 1; min-width: 120px; }}
+.stat strong {{ font-size: 1.5rem; color: #1e293b; display: block; }} .label {{ color: #64748b; font-size: 0.8rem; }}
 table {{ width: 100%; border-collapse: collapse; margin-top: 0.5rem; }}
-th {{ background: #eef2ff; color: #1e40af; padding: 0.5rem 0.8rem; text-align: left; border-bottom: 2px solid #818cf8; }}
+th {{ background: #eef2ff; color: #1e40af; padding: 0.5rem 0.8rem; text-align: left; border-bottom: 2px solid #818cf8; font-size: 0.85rem; }}
 </style></head><body>
 <h1>📊 Meditech Stock Bot — Usage Stats</h1>
-<div class="stat"><strong>{usage.get('total_visits', 0)}</strong><br><span class="label">👁️ Total Page Visits</span></div>
-<div class="stat"><strong>{usage.get('total_uploads', 0)}</strong><br><span class="label">📤 Total Files Uploaded</span></div>
-<div class="stat"><strong>{export_count}</strong><br><span class="label">📦 Export Files</span></div>
-<div class="stat"><strong>{unsold_count}</strong><br><span class="label">📋 Unsold Files</span></div>
-<div class="stat"><strong>{titan_count}</strong><br><span class="label">💊 Titan Stock Files</span></div>
-<div class="stat"><strong>{usage.get('last_upload', 'Never')}</strong><br><span class="label">🕐 Last Upload</span></div>
-<div class="stat"><strong>{len(ods_codes)}</strong><br><span class="label">🏥 Unique Pharmacies (ODS Codes)</span></div>
 
-<h2>🏥 ODS Code Breakdown</h2>
+<div class="stat-grid">
+<div class="stat"><strong>{usage.get('total_visits', 0)}</strong><span class="label">👁️ Page Visits</span></div>
+<div class="stat"><strong>{usage.get('total_uploads', 0)}</strong><span class="label">📤 Files Uploaded</span></div>
+<div class="stat"><strong>{export_count}</strong><span class="label">📦 Export</span></div>
+<div class="stat"><strong>{unsold_count}</strong><span class="label">📋 Unsold</span></div>
+<div class="stat"><strong>{titan_count}</strong><span class="label">💊 Titan Stock</span></div>
+<div class="stat"><strong>{len(ods_codes)}</strong><span class="label">🏥 Pharmacies</span></div>
+</div>
+
+<h2>🏥 ODS Code Summary</h2>
 <table>
-<thead><tr><th>ODS Code</th><th style="text-align:right">Uploads</th><th style="text-align:right">Last Drug Tariff Total</th></tr></thead>
-<tbody>{ods_rows if ods_rows else '<tr><td colspan="3" style="padding:0.8rem;color:#64748b">No uploads yet</td></tr>'}</tbody>
+<thead><tr><th>ODS Code</th><th style="text-align:right">Total Uploads</th></tr></thead>
+<tbody>{ods_summary_rows if ods_summary_rows else '<tr><td colspan="2" style="padding:0.8rem;color:#64748b">No uploads yet</td></tr>'}</tbody>
+</table>
+
+<h2>📋 Upload Log (newest first)</h2>
+<table>
+<thead><tr><th>ODS Code</th><th>Date</th><th>File Type</th><th>Filename</th><th style="text-align:right">Drug Tariff Total</th></tr></thead>
+<tbody>{log_rows if log_rows else '<tr><td colspan="5" style="padding:0.8rem;color:#64748b">No uploads yet</td></tr>'}</tbody>
 </table>
 </body></html>"""
 
